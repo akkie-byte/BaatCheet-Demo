@@ -6,11 +6,11 @@ WhatsApp-first mental wellness platform — Node.js + Express backend.
 
 ```
 baatchete-backend/
-├── index.js              ← Main server (Pulkit)
-├── aiEngine.js           ← AI empathy + triage engine (Rushikesh + Pulkit)
+├── index.js              ← Main server 
+├── aiEngine.js           ← AI empathy + triage engine 
 ├── testAI.js             ← Test script (no Twilio needed)
 ├── .env.example          ← Copy to .env and fill in keys
-├── serviceAccount.json   ← Firebase key (Suryadeep provides this)
+├── serviceAccount.json   ← Firebase key 
 └── routes/
     ├── webhook.js        ← Receives WhatsApp messages
     ├── match.js          ← Matchmaking engine
