@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baatcheet — Listener Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a1a; }
+
+  .header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 32px; display: flex; align-items: center; gap: 12px; }
+  .logo { width: 36px; height: 36px; background: #25d366; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; }
+  .header h1 { font-size: 20px; font-weight: 600; color: #111; }
+  .header span { font-size: 13px; color: #6b7280; margin-left: 4px; }
+
+  .stats-bar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 32px; display: flex; gap: 32px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 24px; font-weight: 700; color: #111; }
+  .stat .label { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  .main { padding: 24px 32px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab { padding: 8px 20px; border-radius: 20px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; font-size: 14px; color: #6b7280; transition: all .15s; }
+  .tab.active { background: #111; color: #fff; border-color: #111; }
+
+  .sessions { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+  .card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px; position: relative; }
+  .card:hover { border-color: #d1d5db; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .session-id { font-size: 12px; font-weight: 600; color: #6b7280; letter-spacing: .5px; }
+  .tier-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .tier-green  { background: #dcfce7; color: #166534; }
+  .tier-yellow { background: #fef9c3; color: #854d0e; }
+  .tier-red    { background: #fee2e2; color: #991b1b; }
+
+  .card-body { margin-bottom: 16px; }
+  .card-body .phone { font-size: 13px; color: #6b7280; margin-bottom: 6px; }
+  .card-body .reason { font-size: 14px; color: #374151; line-height: 1.5; }
+  .card-body .summary { font-size: 13px; color: #6b7280; margin-top: 6px; line-height: 1.4; font-style: italic; }
+  .card-body .price { font-size: 13px; font-weight: 600; color: #059669; margin-top: 8px; }
+  .card-body .time { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+
+  .card-actions { display: flex; gap: 8px; }
+  .btn { flex: 1; padding: 9px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; }
+  .btn-accept { background: #111; color: #fff; }
+  .btn-accept:hover { background: #333; }
+  .btn-complete { background: #dcfce7; color: #166534; }
+  .btn-complete:hover { background: #bbf7d0; }
+  .btn-reject { background: #fee2e2; color: #991b1b; }
+  .btn-reject:hover { background: #fecaca; }
+
+  .empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 15px; }
+
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .dot-pending  { background: #f59e0b; }
+  .dot-active   { background: #10b981; }
+  .dot-completed{ background: #6b7280; }
+
+  .listener-input { width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; margin-bottom: 8px; outline: none; }
+  .listener-input:focus { border-color: #111; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #111; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; opacity: 0; transform: translateY(8px); transition: all .2s; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  .refresh-btn { margin-left: auto; padding: 8px 16px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; font-size: 13px; color: #374151; }
+  .refresh-btn:hover { background: #f9fafb; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">B</div>
+  <div>
+    <h1>Baatcheet <span>Listener Dashboard</span></h1>
+  </div>
+  <button class="refresh-btn" onclick="loadAll()">Refresh</button>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="num" id="stat-users">—</div><div class="label">Total Users</div></div>
+  <div class="stat"><div class="num" id="stat-pending">—</div><div class="label">Pending</div></div>
+  <div class="stat"><div class="num" id="stat-active">—</div><div class="label">Active</div></div>
+  <div class="stat"><div class="num" id="stat-completed">—</div><div class="label">Completed</div></div>
+  <div class="stat"><div class="num" id="stat-messages">—</div><div class="label">Messages</div></div>
+</div>
+
+<div class="main">
+  <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
+    <div class="tabs">
+      <button class="tab active" onclick="setFilter('pending', this)"><span class="status-dot dot-pending"></span>Pending</button>
+      <button class="tab" onclick="setFilter('active', this)"><span class="status-dot dot-active"></span>Active</button>
+      <button class="tab" onclick="setFilter('completed', this)"><span class="status-dot dot-completed"></span>Completed</button>
+      <button class="tab" onclick="setFilter('all', this)">All</button>
+    </div>
+  </div>
+
+  <div class="sessions" id="sessions-grid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentFilter = 'pending';
+
+function setFilter(status, el) {
+  currentFilter = status;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  loadSessions();
+}
+
+async function loadStats() {
+  const r = await fetch('/api/stats');
+  const d = await r.json();
+  document.getElementById('stat-users').textContent    = d.total_users ?? '—';
+  document.getElementById('stat-messages').textContent = d.total_messages ?? '—';
+  const s = d.sessions || {};
+  let pending = 0, active = 0, completed = 0;
+  Object.entries(s).forEach(([key, cnt]) => {
+    if (key.endsWith('_pending'))   pending += cnt;
+    if (key.endsWith('_active'))    active += cnt;
+    if (key.endsWith('_completed')) completed += cnt;
+  });
+  document.getElementById('stat-pending').textContent   = pending;
+  document.getElementById('stat-active').textContent    = active;
+  document.getElementById('stat-completed').textContent = completed;
+}
+
+async function loadSessions() {
+  const url = currentFilter === 'all' ? '/api/sessions?status=all' : `/api/sessions?status=${currentFilter}`;
+  const r = await fetch(url);
+  const sessions = await r.json();
+  const grid = document.getElementById('sessions-grid');
+
+  if (!sessions.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="icon">inbox</div><p>No ${currentFilter} sessions</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = sessions.map(s => {
+    const tierClass = `tier-${s.tier}`;
+    const tierLabel = s.tier.charAt(0).toUpperCase() + s.tier.slice(1);
+    const timeAgo   = formatTime(s.created_at);
+    const price     = s.price ? `Rs.${s.price}/session` : '';
+
+    let actions = '';
+    if (s.status === 'pending') {
+      actions = `
+        <input class="listener-input" id="lid-${s.id}" placeholder="Your listener ID / name" />
+        <div class="card-actions">
+          <button class="btn btn-accept" onclick="acceptSession('${s.id}')">Accept Session</button>
+          <button class="btn btn-reject" onclick="rejectSession('${s.id}')">Reject</button>
+        </div>`;
+    } else if (s.status === 'active') {
+      actions = `<div class="card-actions">
+        <button class="btn btn-complete" onclick="completeSession('${s.id}')">Mark Complete</button>
+      </div>`;
+    } else {
+      actions = `<div style="font-size:12px;color:#9ca3af;">Session completed</div>`;
+    }
+
+    return `
+      <div class="card" id="card-${s.id}">
+        <div class="card-header">
+          <span class="session-id">#${s.id}</span>
+          <span class="tier-badge ${tierClass}">${tierLabel}</span>
+        </div>
+        <div class="card-body">
+          <div class="phone">${maskPhone(s.user_phone)}</div>
+          <div class="reason">${s.reason || 'No reason provided'}</div>
+          ${s.summary ? `<div class="summary">${s.summary}</div>` : ''}
+          ${price ? `<div class="price">${price}</div>` : ''}
+          <div class="time">${timeAgo}</div>
+        </div>
+        ${actions}
+      </div>`;
+  }).join('');
+}
+
+async function acceptSession(id) {
+  const lid = document.getElementById(`lid-${id}`)?.value || 'Listener';
+  const r = await fetch(`/api/sessions/${id}/accept`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({listener_id: lid})
+  });
+  if (r.ok) { showToast('Session accepted!'); loadAll(); }
+}
+
+async function completeSession(id) {
+  const r = await fetch(`/api/sessions/${id}/complete`, { method: 'POST' });
+  if (r.ok) { showToast('Session marked complete'); loadAll(); }
+}
+
+async function rejectSession(id) {
+  await fetch(`/api/sessions/${id}/complete`, { method: 'POST' });
+  showToast('Session rejected');
+  loadAll();
+}
+
+function maskPhone(phone) {
+  if (!phone) return 'Unknown';
+  const p = phone.replace(/\D/g, '');
+  return p.length > 6 ? `+${p.slice(0,2)} XXXXX${p.slice(-4)}` : phone;
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts + 'Z');
+  const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (diff < 60)   return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400)return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function loadAll() { loadStats(); loadSessions(); }
+
+loadAll();
+setInterval(loadAll, 15000);
+</script>
+</body>
+</html>
