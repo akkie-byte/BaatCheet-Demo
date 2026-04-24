@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baatcheet — Talk. Heal. Connect.</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<canvas id="fluid-canvas"></canvas>
+<canvas id="canvas"></canvas>
+<div class="grid-bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div id="tbox"></div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-title">Edit Profile</div>
+    <div class="f-group"><label class="f-label">Full Name</label><input class="f-input" id="m-name" placeholder="Enter your full name"></div>
+    <div class="m-row">
+      <div class="f-group"><label class="f-label">Mobile</label><input class="f-input" id="m-mob" placeholder="Enter your mobile number" type="tel"></div>
+      <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="m-email" placeholder="Enter your email address" type="email"></div>
+    </div>
+    <div class="f-group" id="m-rci-g"><label class="f-label">RCI Number</label><input class="f-input" id="m-rci" placeholder="Enter your RCI number (e.g. A-12345)"></div>
+    <div class="f-group" id="m-inst-g" style="display:none"><label class="f-label">Institute ID</label><input class="f-input" id="m-inst" placeholder="Enter your Institute ID (e.g. NIMHANS-2024-001)"></div>
+    <div class="f-group"><label class="f-label">Specialization</label><input class="f-input" id="m-spec" placeholder="e.g. Anxiety, Depression, Relationships..."></div>
+    <div class="m-btns">
+      <button class="btn-m-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-m-save" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Modal -->
+<div class="chat-modal-bg" id="chat-modal">
+  <div class="chat-box">
+    <div class="chat-head">
+      <div class="chat-user-ava" id="chat-ava">?</div>
+      <div class="chat-user-info">
+        <div class="chat-user-name" id="chat-name">User</div>
+        <div class="chat-user-issue" id="chat-issue">Session Active</div>
+      </div>
+      <div class="chat-online-dot"></div>
+      <div class="chat-close-btn" onclick="closeChat()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chat-input" placeholder="Type your message..." rows="1" onkeydown="chatKeyDown(event)" oninput="autoResize(this)"></textarea>
+      <button class="chat-send-btn" onclick="sendChatMsg()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-brand" onclick="goHome()">
+    <div class="nav-logo-box">B</div>
+    <div class="nav-name">Baatcheet</div>
+  </div>
+  <div class="nav-links" id="nav-links">
+    <div class="nl">Features</div>
+    <div class="nl">How it Works</div>
+    <div class="nl">About</div>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <button class="btn-ghost-sm" onclick="showLogin()">Log In</button>
+    <button class="btn-orange-sm" onclick="showLogin()">Get Started</button>
+  </div>
+</nav>
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="home">
+  <div class="feat-strip" style="margin-top:58px;">
+    <div class="fs-item"><div class="fs-dot fs-dot-or"></div>Incoming Requests</div>
+    <div class="fs-item"><div class="fs-dot fs-dot-grn"></div>Availability Control</div>
+    <div class="fs-item"><div class="fs-dot fs-dot-amb"></div>Earnings Tracker</div>
+    <div class="fs-item"><div class="fs-dot fs-dot-teal"></div>Session History</div>
+    <div class="fs-item"><div class="fs-dot fs-dot-vio"></div>Ratings &amp; Reviews</div>
+    <div class="fs-item"><div class="fs-dot fs-dot-pnk"></div>Professional Profile</div>
+  </div>
+
+  <section class="hero" style="padding-top:40px;">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot"></div>
+      Mental Wellness · WhatsApp · Real Experts
+    </div>
+    <h1 class="hero-h1">
+      <span class="batcheet-grad">Baatcheet</span>
+    </h1>
+    <div class="hero-tagline">Talk. Heal. Connect.</div>
+    <p class="hero-p">
+      Baatcheet connects licensed therapists and psychology students with users via WhatsApp — instantly, without any waiting.
+    </p>
+    <div class="hero-btns">
+      <button class="btn-hero-or" onclick="showLogin()">
+        Get Started — Free
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-hero-out" onclick="showLogin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        Sign In
+      </button>
+    </div>
+    <div class="role-row">
+      <div class="role-chip" onclick="showLoginWithRole('therapist')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Join as Therapist
+      </div>
+      <div class="role-chip teal-chip" onclick="showLoginWithRole('listener')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
+        Join as Student Listener
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-col"><div class="s-num">2.4k+</div><div class="s-lbl">Active Users</div></div>
+      <div class="stat-col"><div class="s-num">500+</div><div class="s-lbl">Experts</div></div>
+      <div class="stat-col"><div class="s-num">98%</div><div class="s-lbl">Satisfaction</div></div>
+      <div class="stat-col"><div class="s-num">24/7</div><div class="s-lbl">Available</div></div>
+    </div>
+  </section>
+
+  <section class="feat-section">
+    <div class="section-eyebrow">Dashboard Features</div>
+    <h2 class="section-title">Everything in one place</h2>
+    <p class="section-sub">A powerful dashboard for Therapists and Student Listeners to manage their practice easily.</p>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="fc-h">Incoming Requests</div><div class="fc-p">Real-time notifications when someone wants to connect. One-tap accept or decline.</div></div>
+      <div class="feat-card"><div class="fc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div class="fc-h">Availability Control</div><div class="fc-p">Instantly toggle your availability on or off. New requests pause automatically when offline.</div></div>
+      <div class="feat-card"><div class="fc-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="fc-h">Earnings Tracker</div><div class="fc-p">Today, weekly, and total earnings in one place. Full visibility with smart charts.</div></div>
+      <div class="feat-card"><div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="fc-h">Session History</div><div class="fc-p">Complete history of all sessions — name, duration, amount, and status.</div></div>
+      <div class="feat-card"><div class="fc-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="fc-h">Ratings &amp; Reviews</div><div class="fc-p">Client feedback and star ratings. Track and improve your performance over time.</div></div>
+      <div class="feat-card"><div class="fc-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="fc-h">Professional Profile</div><div class="fc-p">RCI number, institute ID, specialization — showcase your identity professionally.</div></div>
+    </div>
+  </section>
+
+  <div class="cta-strip">
+    <h2 class="cta-title">Join Now</h2>
+    <p class="cta-sub">Therapist or Student Listener — free dashboard for both</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn-hero-or" onclick="showLoginWithRole('therapist')">Therapist Register</button>
+      <button class="btn-hero-out" style="border-color:rgba(45,212,191,.4);color:var(--teal);" onclick="showLoginWithRole('listener')">Student Listener Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div class="screen" id="login">
+  <div class="login-wrap" id="login-wrap">
+    <div class="login-left ll-default" id="ll-panel">
+      <div class="ll-glow ll-glow-vio" id="ll-glow"></div>
+      <div class="ll-top">
+        <div class="ll-brand">
+          <div class="ll-logo ll-logo-vio" id="ll-logo">B</div>
+          <div class="ll-name">Baatcheet</div>
+        </div>
+        <div id="ll-content">
+          <div class="ll-big-icon-wrap" id="ll-icon-wrap">
+            <svg id="ll-icon-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="ll-title" id="ll-title">Welcome to Baatcheet</div>
+          <div class="ll-desc" id="ll-desc">A new way of mental wellness support. A smart dashboard for therapists and students.</div>
+        </div>
+      </div>
+      <div class="ll-bottom">
+        <ul class="ll-features" id="ll-features">
+          <li><div class="ll-feat-dot feat-or">✓</div>Real-time session management</li>
+          <li><div class="ll-feat-dot feat-or">✓</div>Earnings tracking &amp; analytics</li>
+          <li><div class="ll-feat-dot feat-or">✓</div>Client request notifications</li>
+        </ul>
+      </div>
+    </div>
+    <div class="login-right" id="lr-panel">
+      <div id="form-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">B</div>
+      <div>
+        <div class="sb-name">Baatcheet</div>
+        <div class="sb-tag">Dashboard</div>
+      </div>
+    </div>
+    <div class="sb-section">Main</div>
+    <div class="nav-it active" onclick="showPage('home-dash',this)">
+      <span class="nav-ic"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Home
+    </div>
+    <div class="nav-it" onclick="showPage('requests',this)">
+      <span class="nav-ic"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>Incoming Requests<span class="nav-badge" id="req-badge">0</span>
+    </div>
+    <div class="sb-section">Finance</div>
+    <div class="nav-it" onclick="showPage('earnings',this)">
+      <span class="nav-ic"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Earnings
+    </div>
+    <div class="sb-section">Records</div>
+    <div class="nav-it" onclick="showPage('sessions',this)">
+      <span class="nav-ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span>Session History
+    </div>
+    <div class="nav-it" onclick="showPage('rating',this)">
+      <span class="nav-ic"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>My Rating
+    </div>
+    <div class="sb-section">Account</div>
+    <div class="nav-it" onclick="showPage('profile',this)">
+      <span class="nav-ic"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Profile
+    </div>
+    <div style="margin-top:auto;">
+      <div class="avail-widget">
+        <div class="avail-lbl">Availability</div>
+        <div class="avail-row">
+          <div class="avail-status">
+            <div class="a-dot on" id="a-dot"></div>
+            <span class="a-txt-on" id="a-txt">Online</span>
+          </div>
+          <label class="tgl">
+            <input type="checkbox" id="avail-cb" checked onchange="toggleAvail(this)">
+            <div class="tgl-track"></div>
+            <div class="tgl-thumb"></div>
+          </label>
+        </div>
+      </div>
+      <div class="logout-it" onclick="doLogout()">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <!-- Home Page -->
+    <div class="page active" id="page-home-dash">
+      <div class="dash-top">
+        <div><div class="dt-title" id="d-title">Dashboard</div><div class="dt-sub" id="d-sub">Welcome to Baatcheet</div></div>
+        <div class="dt-right">
+          <div class="ico-btn" onclick="showT('No new notifications','','ic-or')">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <div class="ico-dot"></div>
+          </div>
+          <div class="user-pill" onclick="showPage('profile',null)">
+            <div class="u-ava" id="d-ava">?</div>
+            <div class="u-name" id="d-uname">Setup</div>
+          </div>
+        </div>
+      </div>
+      <div class="s-grid">
+        <div class="s-card" onclick="showPage('sessions',null)"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sc-lbl">Today's Sessions</div><div class="sc-val empty" id="ov-ses">—</div><div class="sc-sub">No session yet</div></div>
+        <div class="s-card" onclick="showPage('earnings',null)"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sc-lbl">Today's Earnings</div><div class="sc-val empty" id="ov-earn">Rs. —</div><div class="sc-sub">No earnings yet</div></div>
+        <div class="s-card" onclick="showPage('rating',null)"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="sc-lbl">Rating</div><div class="sc-val empty" id="ov-rate">—</div><div class="sc-sub">No reviews yet</div></div>
+        <div class="s-card" onclick="showPage('requests',null)"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="sc-lbl">Pending Requests</div><div class="sc-val" id="ov-req">0</div><div class="sc-sub">Waiting for you</div></div>
+      </div>
+      <div class="sec-head">Quick Access <div class="sec-line"></div></div>
+      <div class="quick-grid">
+        <div class="qc" onclick="showPage('requests',null)"><div class="qc-ic"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="qc-t">Incoming Requests</div><div class="qc-s">User requests appear here</div></div>
+        <div class="qc" onclick="showPage('earnings',null)"><div class="qc-ic"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="qc-t">Track Earnings</div><div class="qc-s">Today, weekly and total</div></div>
+        <div class="qc" onclick="showPage('sessions',null)"><div class="qc-ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div class="qc-t">Session History</div><div class="qc-s">List of all past sessions</div></div>
+        <div class="qc" onclick="showPage('profile',null)"><div class="qc-ic"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="qc-t">My Profile</div><div class="qc-s">Set up and manage profile</div></div>
+      </div>
+    </div>
+
+    <!-- Requests Page -->
+    <div class="page" id="page-requests">
+      <div class="dash-top">
+        <div><div class="dt-title">Incoming Requests</div><div class="dt-sub">Users want to connect with you</div></div>
+        <div class="dt-right"><button style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);color:#ffffff;border-radius:9px;font-size:12.5px;font-weight:600;transition:.2s;" onmouseover="this.style.borderColor='var(--or)'" onmouseout="this.style.borderColor='var(--border2)'" onclick="addDemoReq()">+ Test Request</button></div>
+      </div>
+      <div id="req-list"><div class="card cp"><div class="empty-st"><div class="empty-ic"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="empty-t">No requests yet</div><div class="empty-s">Keep availability "Online". When a user connects, it will show here.</div></div></div></div>
+    </div>
+
+    <!-- Earnings Page -->
+    <div class="page" id="page-earnings">
+      <div class="dash-top"><div><div class="dt-title">Earnings</div><div class="dt-sub">Your complete earnings breakdown</div></div></div>
+      <div class="s-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="s-card"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sc-lbl">Today</div><div class="sc-val empty" id="e-today">Rs. 0</div><div class="sc-sub">0 sessions today</div></div>
+        <div class="s-card"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="sc-lbl">This Week</div><div class="sc-val empty" id="e-week">Rs. 0</div><div class="sc-sub">0 sessions this week</div></div>
+        <div class="s-card"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sc-lbl">Total Earnings</div><div class="sc-val empty" id="e-total">Rs. 0</div><div class="sc-sub">Since beginning</div></div>
+      </div>
+      <div class="sec-head" style="margin-top:6px">Weekly Chart <div class="sec-line"></div></div>
+      <div class="card cp"><div class="chart-wrap" id="e-chart"></div><div style="text-align:center;margin-top:14px;font-size:12px;color:#aaaacc;">Chart will update after accepting sessions</div></div>
+    </div>
+
+    <!-- Sessions Page -->
+    <div class="page" id="page-sessions">
+      <div class="dash-top"><div><div class="dt-title">Session History</div><div class="dt-sub">Complete list of all sessions</div></div></div>
+      <div class="s-grid" style="grid-template-columns:1fr 1fr">
+        <div class="s-card"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sc-lbl">Total Sessions</div><div class="sc-val empty" id="st-total">0</div></div>
+        <div class="s-card"><div class="sc-glow"></div><div class="sc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="sc-lbl">Total Hours</div><div class="sc-val empty" id="st-hours">0h</div></div>
+      </div>
+      <div class="sec-head">All Sessions <div class="sec-line"></div></div>
+      <div class="card cp" id="ses-list"><div class="empty-st"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div class="empty-t">No sessions yet</div><div class="empty-s">Sessions will be recorded here after accepting requests.</div></div></div>
+    </div>
+
+    <!-- Rating Page -->
+    <div class="page" id="page-rating">
+      <div class="dash-top"><div><div class="dt-title">My Rating</div><div class="dt-sub">User feedback and reviews</div></div></div>
+      <div class="card cp" style="margin-bottom:16px;"><div style="display:flex;align-items:center;gap:24px;margin-bottom:20px;"><div><div class="big-rate" id="r-big">—</div></div><div><div class="stars" id="r-stars">☆☆☆☆☆</div><div class="rate-count" id="r-count">No reviews yet</div></div></div><div id="r-bars"></div></div>
+      <div class="card cp"><div class="empty-st"><div class="empty-ic"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="empty-t">No reviews yet</div><div class="empty-s">Users will rate you after sessions. It will appear here.</div></div></div>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="page" id="page-profile">
+      <div class="dash-top"><div><div class="dt-title">Profile</div><div class="dt-sub">Manage your professional profile</div></div></div>
+      <div class="prof-hero">
+        <div class="prof-ava" id="p-ava">?</div>
+        <div class="prof-name" id="p-name">Name Not Set</div>
+        <div class="prof-role" id="p-role">Role Not Set</div>
+        <div class="prof-badges" id="p-badges"><span class="pb pb-or">Incomplete</span></div>
+        <div class="prof-stats">
+          <div class="ps"><div class="ps-val" id="p-s1">0</div><div class="ps-lbl">Sessions</div></div>
+          <div class="ps"><div class="ps-val" id="p-s2">—</div><div class="ps-lbl">Rating</div></div>
+          <div class="ps"><div class="ps-val" id="p-s3">0</div><div class="ps-lbl">Reviews</div></div>
+        </div>
+        <button class="btn-edit-prof" onclick="openModal()">Edit Profile</button>
+      </div>
+      <div class="info-grid">
+        <div class="info-it"><div class="info-lbl">Full Name</div><div class="info-val e" id="i-name">— Not set</div></div>
+        <div class="info-it"><div class="info-lbl">Mobile</div><div class="info-val e" id="i-mob">— Not set</div></div>
+        <div class="info-it"><div class="info-lbl">Email</div><div class="info-val e" id="i-email">— Not set</div></div>
+        <div class="info-it" id="i-rci-box"><div class="info-lbl">RCI Number</div><div class="info-val e" id="i-rci">— Not set</div></div>
+        <div class="info-it" id="i-inst-box" style="display:none"><div class="info-lbl">Institute ID</div><div class="info-val e" id="i-inst">— Not set</div></div>
+        <div class="info-it"><div class="info-lbl">Specialization</div><div class="info-val e" id="i-spec">— Not set</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./script.js"></script>
+</body>
+</html>
